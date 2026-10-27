@@ -1,0 +1,18 @@
+{
+  "name": "vanishield-sdg8-platform",
+  "version": "1.0.0",
+  "description": "Voice-First Multilingual Workforce Safety, Fair Wage, Burnout Radar & Portable Skill Passport for SDG 8",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/workforceService.test.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "compression": "^1.7.4",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0"
+  }
+}

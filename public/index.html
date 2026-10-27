@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaniShield SDG-8 | Voice-First Workforce Safety, Fair Wage & Skill Passport</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :focus-visible { outline: 3px solid #f59e0b !important; outline-offset: 2px !important; }
+    .fade-transition { transition: all 0.3s ease-in-out; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-amber-400 selection:text-slate-950">
+  <a href="#main-workspace" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-amber-400 focus:text-slate-950 focus:px-4 focus:py-2 focus:rounded-lg focus:font-bold">
+    Skip to main workspace
+  </a>
+
+  <!-- Header & Global Controls -->
+  <header class="border-b border-slate-800 bg-slate-900/95 sticky top-0 z-40 backdrop-blur shadow-lg shadow-black/40">
+    <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-xl shadow-md shadow-amber-400/20" aria-hidden="true">VS</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-extrabold tracking-tight text-white">VaniShield (वाणी-Shield)</h1>
+            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">UN SDG-8 Aligned</span>
+          </div>
+          <p class="text-xs text-slate-400">Voice-First Safety, Fair Overtime, Quit-Risk Radar & Portable Skill Passport</p>
+        </div>
+      </div>
+
+      <nav aria-label="Global Controls" class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center bg-slate-800/90 p-1 rounded-xl border border-slate-700 shadow-inner" role="group" aria-label="Select Industry">
+          <button id="btn-industry-construction" type="button" onclick="switchActiveIndustry('construction')" class="px-3 py-2 rounded-lg text-xs font-bold bg-amber-400 text-slate-950 transition active:scale-95">🏗️ Construction</button>
+          <button id="btn-industry-police" type="button" onclick="switchActiveIndustry('police')" class="px-3 py-2 rounded-lg text-xs font-bold text-slate-200 hover:text-white transition active:scale-95">🚓 Police</button>
+          <button id="btn-industry-manufacturing" type="button" onclick="switchActiveIndustry('manufacturing')" class="px-3 py-2 rounded-lg text-xs font-bold text-slate-200 hover:text-white transition active:scale-95">🏭 Factory</button>
+        </div>
+
+        <select id="language-selector" onchange="changeInterfaceLanguage(this.value)" aria-label="Choose Language" class="bg-slate-800 text-slate-100 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-700 shadow-inner">
+          <option value="en">🌐 English (EN)</option>
+          <option value="hi">🌐 हिन्दी Hindi (HI)</option>
+          <option value="ta">🌐 தமிழ் Tamil (TA)</option>
+          <option value="te">🌐 తెలుగు Telugu (TE)</option>
+          <option value="kn">🌐 ಕನ್ನಡ Kannada (KN)</option>
+          <option value="ml">🌐 മലയാളം Malayalam (ML)</option>
+          <option value="bn">🌐 বাংলা Bengali (BN)</option>
+        </select>
+
+        <button type="button" onclick="speakCurrentScreenSummary()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 border border-indigo-400/40 transition active:scale-95 shadow-md shadow-indigo-600/20">
+          🔊 <span id="btn-voice-label">Voice Guide</span>
+        </button>
+
+        <div class="flex items-center bg-slate-800/90 p-1 rounded-xl border border-slate-700 shadow-inner" role="group" aria-label="Switch Role">
+          <button id="tab-worker-portal" type="button" onclick="switchUserPortal('worker')" class="px-3.5 py-2 rounded-lg text-xs font-extrabold bg-emerald-400 text-slate-950 transition active:scale-95">👷 Worker App</button>
+          <button id="tab-employer-portal" type="button" onclick="switchUserPortal('employer')" class="px-3.5 py-2 rounded-lg text-xs font-extrabold text-slate-200 hover:text-white transition active:scale-95">📊 Employer Dashboard</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- SAFE SOS CONFIRMATION MODAL -->
+  <div id="sos-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden fade-transition" role="dialog" aria-modal="true" aria-labelledby="sos-modal-title">
+    <div class="bg-slate-900 border border-rose-500/60 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl shadow-rose-600/20 text-center">
+      <div class="w-16 h-16 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-3xl font-bold animate-pulse">🚨</div>
+      <div>
+        <h3 id="sos-modal-title" class="text-xl font-black text-white">Emergency SOS Beacon Armed</h3>
+        <p class="text-xs text-slate-300 mt-1">
+          To prevent false alarms, this will dispatch to the District Ombudsman in <span id="sos-countdown-number" class="text-rose-400 font-bold text-base">3</span> seconds. Press <kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-rose-300 font-mono">Esc</kbd> to cancel.
+        </p>
+      </div>
+      <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-xs text-amber-300">
+        📍 Active Zone Coordinates: <strong id="sos-active-zone-text">Sector A - High-Rise Core</strong>
+      </div>
+      <div class="grid grid-cols-2 gap-3 pt-2">
+        <button type="button" onclick="cancelSosEmergency()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs py-3.5 px-4 rounded-xl transition active:scale-95">
+          ❌ False Alarm / Cancel
+        </button>
+        <button type="button" onclick="confirmAndDispatchSosImmediately()" class="bg-rose-600 hover:bg-rose-500 text-white font-black text-xs py-3.5 px-4 rounded-xl transition shadow-lg shadow-rose-600/30 active:scale-95">
+          🚨 Dispatch Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main id="main-workspace" class="max-w-7xl mx-auto px-4 py-6 space-y-8 fade-transition">
+    <!-- Context Banner + SOS Trigger -->
+    <section aria-label="Active Industry Context" class="bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl shadow-black/40">
+      <div>
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-400" id="active-industry-badge">ACTIVE INDUSTRY: CONSTRUCTION</div>
+        <h2 class="text-xl font-bold text-white mt-0.5" id="localized-welcome-heading">Safe Work, Clear Pay & Portable Skills for Every Worker</h2>
+        <p class="text-xs text-slate-400 mt-1" id="active-industry-sdg-text">Protects frontline workers with anonymous QR hazard reporting, spoken overtime calculations, and cross-company skill verification.</p>
+      </div>
+      <div class="flex flex-wrap gap-2.5">
+        <button type="button" onclick="openSosConfirmationModal()" class="bg-rose-600 hover:bg-rose-500 text-white font-black text-xs px-4 py-3 rounded-2xl animate-pulse shadow-lg shadow-rose-600/25 transition active:scale-95 flex items-center gap-1.5">
+          🚨 1-TAP SOS EMERGENCY
+        </button>
+        <button type="button" onclick="speakWageBreakdownAloud()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs px-4 py-3 rounded-2xl transition active:scale-95 shadow-md shadow-amber-400/20">
+          🔊 Speak My Salary & Overtime
+        </button>
+      </div>
+    </section>
+
+    <!-- WORKER INTERFACE -->
+    <section id="portal-worker" aria-label="Worker Interface" class="space-y-6 fade-transition">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <article class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-emerald-400 uppercase">Feature 1 & 2 • Auto-Shift, Mood Pulse & Fair Pay</span>
+              <h3 class="text-lg font-bold text-white">QR / GPS Check-In & Transparent Salary</h3>
+            </div>
+            <span id="offline-status-badge" class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full font-bold">🟢 Online & Synced</span>
+          </div>
+
+          <form id="form-attendance-checkin" onsubmit="handleWorkerShiftCheckIn(event)" class="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label for="checkin-method" class="block text-xs font-semibold text-slate-300 mb-1">Check-In Mode</label>
+                <select id="checkin-method" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white">
+                  <option value="QR_CODE_SCAN">📱 Scan Site QR Code</option>
+                  <option value="GEOFENCE_GPS">📍 GPS Geofence Check-In</option>
+                </select>
+              </div>
+              <div>
+                <label for="checkin-hours" class="block text-xs font-semibold text-slate-300 mb-1">Shift Hours</label>
+                <input id="checkin-hours" type="number" min="1" max="18" value="10" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white" />
+              </div>
+              <div>
+                <label for="mood-pulse-input" class="block text-xs font-semibold text-slate-300 mb-1">How do you feel?</label>
+                <select id="mood-pulse-input" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white">
+                  <option value="HAPPY">😊 Happy & Energized</option>
+                  <option value="TIRED">😐 Tired / Heavy OT</option>
+                  <option value="UNHAPPY">😟 Unhappy / Stressed</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="w-full bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold text-xs py-3 px-4 rounded-xl transition active:scale-95 shadow-md shadow-emerald-400/20">
+              ✅ Log Shift, Mood & Auto-Calc Overtime
+            </button>
+            <p id="checkin-feedback-msg" class="text-xs text-emerald-400 font-semibold hidden" role="status"></p>
+          </form>
+
+          <div id="worker-salary-card" class="bg-slate-950 rounded-2xl p-4 border border-slate-800 space-y-3"></div>
+        </article>
+
+        <article class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-rose-400 uppercase">Feature 3 • Zero-Knowledge Whistleblower Shield</span>
+              <h3 class="text-lg font-bold text-white">Anonymous QR & Voice Safety Report</h3>
+            </div>
+            <span class="text-xs bg-rose-500/20 text-rose-300 border border-rose-500/40 px-3 py-1 rounded-full font-bold">🔒 No Name Stored</span>
+          </div>
+
+          <p class="text-xs text-slate-400">Management sees zone & urgency—<strong>never your name or ID</strong>. Complaints auto-escalate to the Ombudsman if ignored.</p>
+
+          <form id="form-safety-report" onsubmit="handleAnonymousSafetySubmit(event)" class="space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="hazard-zone-input" class="block text-xs font-semibold text-slate-300 mb-1">QR Zone / Location</label>
+                <input id="hazard-zone-input" type="text" required placeholder="e.g., Sector A Scaffolding" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white" />
+              </div>
+              <div>
+                <label for="hazard-severity-input" class="block text-xs font-semibold text-slate-300 mb-1">Urgency Level</label>
+                <select id="hazard-severity-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white">
+                  <option value="CRITICAL">🚨 CRITICAL (SLA: 1 Hour)</option>
+                  <option value="HIGH">⚠️ HIGH (SLA: 4 Hours)</option>
+                  <option value="MEDIUM">🛠️ MEDIUM (SLA: 24 Hours)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="hazard-description-input" class="text-xs font-semibold text-slate-300">Describe Hazard or Unfair Treatment</label>
+                <button type="button" onclick="startVoiceDictationForHazard()" class="text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg active:scale-95 transition">🎙️ Speak Complaint</button>
+              </div>
+              <textarea id="hazard-description-input" rows="2" required placeholder="Tap 'Speak Complaint' or type in your language..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white"></textarea>
+            </div>
+
+            <div id="quick-hazard-presets" class="flex flex-wrap gap-1.5"></div>
+
+            <button type="submit" class="w-full bg-rose-500 hover:bg-rose-400 text-slate-950 font-extrabold text-xs py-3 px-4 rounded-xl transition active:scale-95 shadow-md shadow-rose-500/20">
+              🛡️ Submit Anonymous Report & Get Tracking PIN
+            </button>
+          </form>
+
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-300">Track Anonymous Ticket & Bounty:</span>
+              <div class="flex gap-2">
+                <input id="track-pin-input" type="text" value="SAFE-9F4A2C" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-amber-300 font-mono w-32 text-center" />
+                <button type="button" onclick="lookupAnonymousTicket()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-700 active:scale-95">Track</button>
+              </div>
+            </div>
+            <div id="anonymous-ticket-result" class="text-xs text-slate-300 pt-1"></div>
+          </div>
+        </article>
+      </div>
+
+      <article class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-xs font-bold text-amber-400 uppercase">Feature 4 • Never Start From Zero Again</span>
+            <h3 class="text-lg font-bold text-white">Portable Digital Skill Passport (Cross-Company Verified)</h3>
+          </div>
+          <span id="passport-hash-badge" class="text-xs font-mono bg-amber-400/15 text-amber-300 border border-amber-400/30 px-3 py-1.5 rounded-xl">PASS-VERIFIED</span>
+        </div>
+        <div id="skill-passport-container" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+      </article>
+    </section>
+
+    <!-- EMPLOYER & ADMIN DASHBOARD -->
+    <section id="portal-employer" aria-label="Employer Interface" class="space-y-6 hidden fade-transition">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <h3 class="text-lg font-bold text-white">Employer Command & Compliance Dashboard</h3>
+        <button type="button" onclick="exportSdg8AuditReport()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-xl transition active:scale-95 shadow-md shadow-amber-400/20">
+          📥 Download SDG-8 Labour Audit Report (JSON)
+        </button>
+      </div>
+
+      <div id="employer-kpi-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+      <!-- LIVE SOS EMERGENCY DISPATCH CONSOLE -->
+      <article class="bg-slate-900 border border-rose-500/40 rounded-3xl p-6 space-y-4 shadow-xl shadow-rose-600/10">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-xs font-bold text-rose-400 uppercase">Live Crisis Management</span>
+            <h3 class="text-lg font-bold text-white">Active SOS Emergency Dispatch & Rescue Monitor</h3>
+          </div>
+          <span class="text-xs bg-rose-500/20 text-rose-300 border border-rose-500/40 px-3 py-1 rounded-full font-bold animate-pulse">🔴 Live Feed</span>
+        </div>
+        <div id="live-sos-dispatch-console" class="space-y-2.5">
+          <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-xs text-slate-400 text-center">
+            No active SOS distress beacons triggered in current zone. Tap the red 1-TAP SOS button to simulate an emergency dispatch.
+          </div>
+        </div>
+      </article>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <article class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+          <div>
+            <span class="text-xs font-bold text-amber-400 uppercase">Early Warning Intelligence</span>
+            <h3 class="text-lg font-bold text-white">Overwork, Mood Pulse & Quit-Risk Radar</h3>
+            <p class="text-xs text-slate-400">Flags personnel working >48h, reporting 'Unhappy' moods, or caught in zones with unresolved safety tickets.</p>
+          </div>
+          <div id="employer-burnout-list" class="space-y-3"></div>
+        </article>
+
+        <article class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+          <div>
+            <span class="text-xs font-bold text-emerald-400 uppercase">Zero-Retaliation Hazard Queue</span>
+            <h3 class="text-lg font-bold text-white">Anonymous Safety & Grievance Resolution Board</h3>
+            <p class="text-xs text-slate-400">Worker identity is mathematically stripped. Resolving tickets unlocks cryptographic safety incentive bounties.</p>
+          </div>
+          <div id="employer-safety-queue" class="space-y-3"></div>
+        </article>
+      </div>
+    </section>
+
+    <section aria-label="Three Industry Comparison" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold text-emerald-400 uppercase">Cross-Sector Scalability & UN SDG-8 Alignment</span>
+          <h2 class="text-lg font-bold text-white">How VaniShield Works Across Three Distinct Industries</h2>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="bg-slate-950 p-4.5 rounded-2xl border border-slate-800 space-y-2">
+          <h3 class="text-sm font-bold text-amber-400">1. Construction & Infrastructure</h3>
+          <p class="text-slate-400">QR check-in calculates 1.5x overtime; voice payslip reads net salary in regional languages; anonymous QR hazard tickets pause unsafe cranes; Skill Passport carries rigging hours to the next builder.</p>
+        </div>
+        <div class="bg-slate-950 p-4.5 rounded-2xl border border-slate-800 space-y-2">
+          <h3 class="text-sm font-bold text-indigo-400">2. Police & Public Safety</h3>
+          <p class="text-slate-400">Commanders see 16-hour shift burnout radars; constables report radio/fatigue issues anonymously without chain-of-command backlash; trauma certs carry over across precinct transfers.</p>
+        </div>
+        <div class="bg-slate-950 p-4.5 rounded-2xl border border-slate-800 space-y-2">
+          <h3 class="text-sm font-bold text-emerald-400">3. Manufacturing & Garment Factories</h3>
+          <p class="text-slate-400">Assembly operators log machine sensor safety hazards; piece-rate overtime transparency prevents wage skimming; certified machine operator hours transfer securely between factories.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
